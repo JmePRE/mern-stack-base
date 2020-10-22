@@ -64,6 +64,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <LoginForm />
+        <SubmitForm />
         <div className="todo-list">
           {todolist.map((todo, index) => (
             <Todo 
@@ -80,7 +81,51 @@ function App() {
     </div>
   );
 
+  function SubmitForm() {
+    const [todo, setTodo] = useState("");
 
+    const handleSubmit = e => {
+      const newTodos = [...todolist, todo];
+      setTodolist(newTodos);
+
+      const options = {
+        method: 'post',
+        url: 'http://localhost:4000/submitTodos',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        params: {
+          //name: name,
+          list: newTodos
+        }
+      }
+
+      console.log(options)
+      console.log(newTodos)
+
+      axios(options)
+      .then((response) => {
+        console.log(response);        
+      })
+      .catch((error) => console.error(error))
+
+    };
+
+    return(
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        className="submit"
+        value=""
+        onChange={e => setTodo(e.target.value)}
+      />
+      <button type="submit">Submit</button>
+      </form>
+    );
+
+            
+
+      }
   
 
   function LoginForm() {
