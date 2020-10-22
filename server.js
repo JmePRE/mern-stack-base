@@ -49,16 +49,15 @@ MongoClient.connect(connectionString, {useUnifiedTopology:true})
             });
 
         app.post('/submitTodos', (req, res) => {
-            console.log("request")
-            console.log(req.query.name)
-            todosCollection.find({name: req.query.name}).toArray()
-            //sends in results as 'quotes'
+            console.log(req.query.list)
+            todosCollection.updateOne({name: "Jane"}, {$set: {todos: req.query.list}})
                 .then(results => {
                     res.send(results);
                     console.log(results);
                 })	
                 .catch(error => console.error(error))
-            });
+    
+        })
 
         
         //Change to not hardcode
