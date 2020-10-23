@@ -25,21 +25,29 @@ MongoClient.connect(connectionString, {useUnifiedTopology:true})
         const todosCollection = db.collection('todos');
         console.log(todosCollection);
 
-            //CRUD Methods----------------------------------------------------------------
+        //CRUD Methods----------------------------------------------------------------
         //GET request
         app.get('/', (req, res, next) => {
-            //res.send("Hello World")
             //for static files: res.sendFile(__dirname + "/index.html");
-            todosCollection.find({name: "Jane"}).toArray()
+            todosCollection.find({}).toArray()
             //sends in results as 'quotes'
                 .then(results => {res.send(results)})	
                 .catch(error => console.error(error))
             });
 
+        app.post('/signup', (req, res) => {
+            todosCollection.insertOne({name: req.query.name, password: req.query.password, todos:["My First Todo"]})
+            .then(results => {
+                res.send("Successfully signed up!");
+            })
+            .catch(error => console.error(error))
+        })
+        
+
         app.post('/getTodos', (req, res) => {
             console.log("request")
             console.log(req.query.name)
-            todosCollection.find({name: req.query.name}).toArray()
+            todosCollection.find({name: req.query.name, password: req.query.password}).toArray()
             //sends in results as 'quotes'
                 .then(results => {
                     res.send(results);
@@ -48,9 +56,11 @@ MongoClient.connect(connectionString, {useUnifiedTopology:true})
                 .catch(error => console.error(error))
             });
 
+            
+
         app.post('/submitTodos', (req, res) => {
-            console.log(req.query.list)
-            todosCollection.updateOne({name: "Jane"}, {$set: {todos: req.query.list}})
+            console.log("nameeeeeeeeee: " + req.query.name)
+            todosCollection.updateOne({name: req.query.name}, {$set: {todos: req.query.list}})
                 .then(results => {
                     res.send(results);
                     console.log(results);
@@ -63,21 +73,16 @@ MongoClient.connect(connectionString, {useUnifiedTopology:true})
         //Change to not hardcode
         app.delete('/deleteTodos', (req, res) => {
             console.log(req.query.list)
-            todosCollection.updateOne({name: "Jane"}, {$set: {todos: req.query.list}})
+            todosCollection.updateOne({name: req.query.name}, {$set: {todos: req.query.list}})
                 .then(results => {
                     res.send(results);
                     console.log(results);
                 })	
                 .catch(error => console.error(error))
     
-        })
-
-        
-        })
-    
-
+        })    
+    })
     .catch(error => console.error(error));
-
 
 
 //nodemon index.js to start
