@@ -42,6 +42,14 @@ MongoClient.connect(connectionString, {useUnifiedTopology:true})
             })
             .catch(error => console.error(error))
         })
+
+        app.post('/deleteAccount', (req, res) => {
+            todosCollection.deleteOne({name: req.query.name, password: req.query.password})
+            .then(results => {
+                res.send("Successfully deleted account!");
+            })
+            .catch(error => console.error(error))
+        })
         
 
         app.post('/getTodos', (req, res) => {
