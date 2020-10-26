@@ -1,34 +1,13 @@
 import React, {useState} from 'react';
-import logo from './logo.svg';
-import './App.css';
+import logo from './shopping-list.png';
+import './dist/App.css';
 import axios from 'axios';
 
 function App() {
 
   const [todolist, setTodolist] = useState([]);
-  //const [name, setName] = React.useState("");
-  //const [password, setPassword] = React.useState("");
-  /*
-  axios.get('http://localhost:4000/')
-    .then(results => {
-      console.log("retrieved");
-      console.log(results.todos);
-      setTodolist(results.todos);
-    })
-    .catch(error => console.error(error))
-    */
-    const completeTodo = index => {
-      //this time, copy todo again, but we're not adding anything
-      const newTodos = [...todolist];
-      if (newTodos[index].isCompleted === true) {
-        newTodos[index].isCompleted = false;
-      } else {
-        newTodos[index].isCompleted = true;
-      };
-      //finally, update
-      //note: never change value of newtodos directly, always access it through a getter function like so
-      setTodolist(newTodos);
-    };
+  const [name, setName] = React.useState("");
+  const [password, setPassword] = React.useState("");
   
     const removeTodo = index => {
       const newTodos = [...todolist];
@@ -42,7 +21,7 @@ function App() {
           'Content-Type': 'application/json'
         },
         params: {
-          //name: name,
+          name: name,
           list: newTodos
         }
       }
@@ -58,12 +37,160 @@ function App() {
 
     };
 
+    const handleLogin = e => {
+      //returns 'false' to prevent default handle behavior
+      e.preventDefault();
+      //blocking(?)
+      console.log(name);
+      if (!name) return;
+      setPassword("");
+      //retrieve todos based on name
+  
+      const option = {
+        method: 'post',
+        url: 'http://localhost:4000/getTodos',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        params: {
+          name: name,
+          password: password
+        }
+      }
+      axios(option)
+      .then((response) => {
+        console.log(response.data[0].todos);
+        setTodolist(response.data[0].todos);
+        
+      })
+      .catch((error) => console.error(error))
+  
+    };
+
+    const handleSignup = e => {
+      //returns 'false' to prevent default handle behavior
+      e.preventDefault();
+      //blocking(?)
+      console.log(name);
+      if (!name) return;
+      
+      //retrieve todos based on name
+  
+      const option = {
+        method: 'post',
+        url: 'http://localhost:4000/signup',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        params: {
+          name: name,
+          password: password
+        }
+      }
+      axios(option)
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((error) => console.error(error))
+
+      const option2 = {
+        method: 'post',
+        url: 'http://localhost:4000/getTodos',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        params: {
+          name: name,
+          password: password
+        }
+      }
+      axios(option2)
+      .then((response) => {
+        console.log(response.data[0].todos);
+        setTodolist(response.data[0].todos);
+      })
+      .catch((error) => console.error(error))
+
+      setPassword("")
+  
+    };
+
+    const handleDeleteAccount = e => {
+      //returns 'false' to prevent default handle behavior
+      e.preventDefault();
+      //blocking(?)
+      console.log(name);
+      if (!name) return;
+      
+      //retrieve todos based on name
+  
+      const option = {
+        method: 'post',
+        url: 'http://localhost:4000/deleteAccount',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        params: {
+          name: name,
+          password: password
+        }
+      }
+      axios(option)
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((error) => console.error(error))
+
+      setName("")
+      setPassword("")
+      setTodolist([])
+  
+    };
+
+    
     
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <LoginForm />
+
+        <div className="left">
+          <img src={logo} className="App-logo" alt="logo" />
+          
+          <h2>A really sad to-do app</h2>
+
+          <div className="login-form">
+            <form >
+            <input
+              type="text"
+              className="username"
+              placeholder="Username"
+              value={name}
+              onChange={e => {
+                setName(e.target.value)
+                //console.log(name)
+              }}
+            />
+            <input
+              type="text"
+              className="password"
+              placeholder="Password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              //onChange={e => setName(e.target.value)}
+            />
+            <button type="submit" onClick={handleLogin}>Login</button>
+            <button type="submit" onClick={handleSignup}>Sign up</button>
+            <button type="submit" onClick={handleDeleteAccount}>Delete Account</button>
+            </form>
+            </div>
+
+            <p>Instructions for user:</p>
+            <p>Fill in username and password for all operations</p>
+            <p>After logging in, you may start adding/deleting todos</p>
+
+          </div>
+
+        <div className="right">
         <SubmitForm />
         <div className="todo-list">
           {todolist.map((todo, index) => (
@@ -71,11 +198,11 @@ function App() {
             key={index} 
             index={index} 
             todo={todo} 
-            completeTodo={completeTodo}
             removeTodo={removeTodo}
             />
           ))}
 		    </div>
+      </div>
       </header>
       
     </div>
@@ -95,7 +222,7 @@ function App() {
           'Content-Type': 'application/json'
         },
         params: {
-          //name: name,
+          name: name,
           list: newTodos
         }
       }
@@ -115,89 +242,23 @@ function App() {
     <form onSubmit={handleSubmit}>
       <input
         type="text"
-        className="submit"
-        value=""
+        placeholder="Write new to-do here"
+        value={todo}
         onChange={e => setTodo(e.target.value)}
       />
       <button type="submit">Submit</button>
       </form>
-    );
-
-            
+    );    
 
       }
   
 
-  function LoginForm() {
-    //local state for the todo form
-    const [name, setName] = React.useState("");
-    const [password, setPassword] = React.useState("");
-  
-    const handleLogin = e => {
-      //returns 'false' to prevent default handle behavior
-      e.preventDefault();
-      //blocking(?)
-      console.log(name);
-      if (!name) return;
-      setName("");
-      //retrieve todos based on name
-  
-      //ISSUE: body not being sent over
-      const option = {
-        method: 'post',
-        url: 'http://localhost:4000/getTodos',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        params: {
-          name: name,
-          password: password
-        }
-      }
-
-      //console.log(name);
-      //axios.post('http://localhost:4000/getTodos', {name, password})
-      axios(option)
-      .then((response) => {
-        console.log(response.data[0].todos);
-        setTodolist(response.data[0].todos);
-        
-      })
-      .catch((error) => console.error(error))
-  
-    };
-  
-    //displays form
-    return (
-      <div className="login-form">
-      <form onSubmit={handleLogin}>
-      <input
-        type="text"
-        className="username"
-        value={name}
-        onChange={e => setName(e.target.value)}
-      />
-      <input
-        type="text"
-        className="password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        //onChange={e => setName(e.target.value)}
-      />
-      <button type="submit">Submit</button>
-      </form>
-      
-      </div>
-    );
-  }
-
-  function Todo({ todo, index, completeTodo, removeTodo }) {
+  function Todo({ todo, index, removeTodo }) {
 
     return (
-      <div className="todo" style={{ textDecoration: (todo.isCompleted) ? "line-through" : ""}}>
+      <div className="todo">
         {todo}
         <div>
-          <button onClick={() => completeTodo(index)}>{(todo.isCompleted) ? "Mark Uncomplete" : "Mark Complete"}</button>
           <button onClick={() => removeTodo(index)}>Delete</button>
         </div>
       </div>
